@@ -8,7 +8,7 @@
 # About
 ##
 
-The de.mrh.evtest project create a application to test all MRH events.
+The de.mrh.evtest project creates a application used for testing all MRH events.
 
 
 ##
@@ -32,23 +32,6 @@ libmrhbf: https://github.com/jbroerken/libmrhbf/
 libmrhevdata: https://github.com/jbroerken/libmrhevdata/
 mrhshared: https://github.com/jbroerken/mrhshared/
 
-For more information about the requirements, check the "Building" section found in the documentation.
-
-
-##
-# Documentation
-##
-
-All documentation is build with sphinx-doc using the Read The Docs theme.
-To build the documentation, grab the requirements for it:
-
-sphinx-doc:
------------
-https://www.sphinx-doc.org/en/master/
-
-Read The Docs Theme:
---------------------
-https://sphinx-rtd-theme.readthedocs.io/en/stable/
 
 ##
 # Licence
