@@ -210,7 +210,7 @@ protected:
     
     EventModule(std::string const& s_Name,
                 bool& b_EventFailed) noexcept : MRH::AB::Module(s_Name,
-                                                                true),
+                                                                100),
                                                 c_Timer(TIMED_MODULE_TIMEOUT_MS),
                                                 b_EventFailed(b_EventFailed),
                                                 b_EventHandled(false)
