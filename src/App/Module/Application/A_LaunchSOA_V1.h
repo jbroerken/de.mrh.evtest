@@ -14,18 +14,23 @@
  *  limitations under the License.
  */
 
-#ifndef L_Avail_V1_h
-#define L_Avail_V1_h
+#ifndef A_LaunchSOA_V1_h
+#define A_LaunchSOA_V1_h
 
 // C / C++
 
 // External
 
 // Project
-#include "./L_GetMethod_V1.h"
+#include "./A_LaunchSOAClear_V1.h"
+
+// Pre-defined
+#ifndef MRH_EVENT_TEST_LAUNCH_PACKAGE_PATH
+    #define MRH_EVENT_TEST_LAUNCH_PACKAGE_PATH "/opt/mrh/de.mrh.version.soa"
+#endif
 
 
-class L_Avail_V1 : public EventModule
+class A_LaunchSOA_V1 : public EventModule
 {
 public:
 
@@ -39,17 +44,26 @@ public:
      *  \param p_EventSender The event sender to use.
      */
 
-    L_Avail_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_LISTEN_AVAIL",
-                                                                          MRH_EVENT_LISTEN_AVAIL_S,
-                                                                          false,
-                                                                          p_EventSender)
+    A_LaunchSOA_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_APP_LAUNCH_SOA",
+                                                                              MRH_EVENT_APP_LAUNCH_SOA_S,
+                                                                              false,
+                                                                              p_EventSender)
     {
-        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_LISTEN_AVAIL_U, NULL, 0);
+        memset(c_Launch.p_PackagePath, '\0', MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX_TERMINATED);
+        strncpy(c_Launch.p_PackagePath, MRH_EVENT_TEST_LAUNCH_PACKAGE_PATH, MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX);
+
+        memset(c_Launch.p_LaunchInput, '\0', MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX_TERMINATED);
+        strncpy(c_Launch.p_LaunchInput, "ÄÖÜ", MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX);
+
+        c_Launch.s32_LaunchCommandID = 1;
+
+
+        MRH_Event* p_Event = MRH_EVD_CreateSetEvent(MRH_EVENT_APP_LAUNCH_SOA_U, &c_Launch);
 
         if (p_Event == NULL)
         {
             throw MRH::AB::ModuleException(GetIdentifier(),
-                                           "Failed to create MRH_EVENT_LISTEN_AVAIL_U event!");
+                                           "Failed to create MRH_EVENT_APP_LAUNCH_SOA_U event!");
         }
 
         try
@@ -69,7 +83,7 @@ public:
      *  Default destructor.
      */
 
-    ~L_Avail_V1() noexcept
+    ~A_LaunchSOA_V1() noexcept
     {}
 
     //*************************************************************************************
@@ -84,7 +98,7 @@ public:
 
     std::unique_ptr<MRH::AB::Module> NextModule() override
     {
-        return std::make_unique<L_GetMethod_V1>(p_EventSender);
+        return std::make_unique<A_LaunchSOAClear_V1>(p_EventSender);
     }
 
 private:
@@ -103,20 +117,36 @@ private:
 
     bool EventValid(const MRH_Event* p_Event) noexcept override
     {
-        MRH_EvD_L_ServiceAvail_S c_Data;
+        MRH_EvD_A_LaunchSOA_S c_Data;
 
         if (MRH_EVD_ReadEvent(&c_Data, p_Event->u32_Type, p_Event) < 0)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
                                                                      ": Failed to read event!",
-                                             "L_Avail_V1.h", __LINE__);
+                                             "A_LaunchSOA_V1.h", __LINE__);
             return false;
         }
-        else if (c_Data.u8_Available != MRH_EvD_Base_Result::MRH_EVD_BASE_RESULT_SUCCESS)
+        else if (strncmp(c_Data.p_PackagePath, c_Launch.p_PackagePath, MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX) != 0)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
-                                                                     ": Service not available!",
-                                             "L_Avail_V1.h", __LINE__);
+                                                                     ": Launch path mismatch!",
+                                             "A_LaunchSOA_V1.h", __LINE__);
+            return false;
+
+        }
+        else if (strncmp(c_Data.p_LaunchInput, c_Launch.p_LaunchInput, MRH_EVD_A_STRING_LAUNCH_BUFFER_MAX) != 0)
+        {
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Launch input mismatch!",
+                                             "A_LaunchSOA_V1.h", __LINE__);
+            return false;
+
+        }
+        else if (c_Data.s32_LaunchCommandID != c_Launch.s32_LaunchCommandID)
+        {
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Launch command ID mismatch!",
+                                             "A_LaunchSOA_V1.h", __LINE__);
             return false;
         }
 
@@ -127,8 +157,10 @@ private:
     // Data
     //*************************************************************************************
 
+    MRH_EvD_A_LaunchSOA_U c_Launch;
+
 protected:
 
 };
 
-#endif /* L_Avail_V1_h */
+#endif /* A_LaunchSOA_V1_h */

@@ -18,6 +18,10 @@
 #define EventModule_h
 
 // C / C++
+#include <unistd.h>
+#include <cstdio>
+#include <cstring>
+#include <string>
 
 // External
 #include <libmrhab/Module/MRH_Module.h>
@@ -56,36 +60,74 @@ public:
 
     MRH::AB::Module::Result Update(const MRH_Event* p_Event) override
     {
+        /**
+         *  Event Usable
+         */
+
         if (p_Event == NULL)
         {
             return MRH::AB::Module::IN_PROGRESS;
         }
-        else if (p_Event->u32_Type == MRH_EVENT_NOT_IMPLEMENTED_S)
+
+        /**
+         *  System Events?
+         */
+
+        if (p_Event->u32_Type == MRH_EVENT_NOT_IMPLEMENTED_S)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::WARNING, GetIdentifier() +
                                                                        ": MRH_EVENT_NOT_IMPLEMENTED_S",
                                              "EventModule.h", __LINE__);
+            if (b_IsLast == true)
+            {
+                return MRH::AB::Module::FINISHED_POP;
+            }
+            else
+            {
+                return MRH::AB::Module::FINISHED_REPLACE;
+            }
         }
         else if (p_Event->u32_Type == MRH_EVENT_PERMISSION_DENIED)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::WARNING, GetIdentifier() +
                                                                        ": MRH_EVENT_PERMISSION_DENIED",
                                              "EventModule.h", __LINE__);
+            if (b_IsLast == true)
+            {
+                return MRH::AB::Module::FINISHED_POP;
+            }
+            else
+            {
+                return MRH::AB::Module::FINISHED_REPLACE;
+            }
         }
-        else if (EventValid(p_Event) == false)
+
+        /**
+         *  Event Check
+         */
+
+        if (EventValid(p_Event) == true)
         {
-            return MRH::AB::Module::FINISHED_POP;
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, "Event test succeeded: " +
+                                                                     GetIdentifier(),
+                                             "EventModule.h", __LINE__);
+            if (b_IsLast == true)
+            {
+                return MRH::AB::Module::FINISHED_POP;
+            }
+            else
+            {
+                return MRH::AB::Module::FINISHED_REPLACE;
+            }
         }
-        else if (b_IsLast == true)
+        else
         {
-            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::INFO, GetIdentifier() +
-                                                                    ": Last handled, stopping.",
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, "Event test failed: " +
+                                                                     GetIdentifier(),
                                              "EventModule.h", __LINE__);
 
             return MRH::AB::Module::FINISHED_POP;
         }
-
-        return MRH::AB::Module::FINISHED_REPLACE;
     }
 
     //*************************************************************************************
@@ -154,7 +196,7 @@ protected:
      *  Default constructor.
      *
      *  \param s_Identifier The module identifier.
-     *  \param u32_ResponseEvent The event to check for.
+     *  \param u32_ResponseEvent The response event to check for.
      *  \param b_IsLast If this is the last event to check.
      *  \param p_EventSender The event sender to use.
      */
@@ -166,7 +208,11 @@ protected:
                                                                         u32_ResponseEvent(u32_ResponseEvent),
                                                                         b_IsLast(b_IsLast),
                                                                         p_EventSender(p_EventSender)
-    {}
+    {
+        MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::INFO, "Performing event test: " +
+                                                                GetIdentifier(),
+                                         "EventModule.h", __LINE__);
+    }
 
     //*************************************************************************************
     // Data

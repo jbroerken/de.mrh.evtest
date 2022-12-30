@@ -14,18 +14,18 @@
  *  limitations under the License.
  */
 
-#ifndef L_Custom_V1_h
-#define L_Custom_V1_h
+#ifndef U_AccessClear_V1_h
+#define U_AccessClear_V1_h
 
 // C / C++
 
 // External
 
 // Project
-#include "../Say/S_Avail_V1.h"
+#include "./U_GetLocation_V1.h"
 
 
-class L_Custom_V1 : public EventModule
+class U_AccessClear_V1 : public EventModule
 {
 public:
 
@@ -39,17 +39,17 @@ public:
      *  \param p_EventSender The event sender to use.
      */
 
-    L_Custom_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_LISTEN_CUSTOM_COMMAND",
-                                                                           MRH_EVENT_LISTEN_CUSTOM_COMMAND_S,
-                                                                           false,
-                                                                           p_EventSender)
+    U_AccessClear_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_USER_ACCESS_CLEAR",
+                                                                                MRH_EVENT_USER_ACCESS_CLEAR_S,
+                                                                                false,
+                                                                                p_EventSender)
     {
-        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_LISTEN_CUSTOM_COMMAND_U, NULL, 0);
+        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_USER_ACCESS_CLEAR_U, NULL, 0);
 
         if (p_Event == NULL)
         {
             throw MRH::AB::ModuleException(GetIdentifier(),
-                                           "Failed to create MRH_EVENT_LISTEN_CUSTOM_COMMAND_U event!");
+                                           "Failed to create MRH_EVENT_USER_ACCESS_CLEAR_U event!");
         }
 
         try
@@ -69,7 +69,7 @@ public:
      *  Default destructor.
      */
 
-    ~L_Custom_V1() noexcept
+    ~U_AccessClear_V1() noexcept
     {}
 
     //*************************************************************************************
@@ -84,7 +84,7 @@ public:
 
     std::unique_ptr<MRH::AB::Module> NextModule() override
     {
-        return std::make_unique<S_Avail_V1>(p_EventSender);
+        return std::make_unique<U_GetLocation_V1>(p_EventSender);
     }
 
 private:
@@ -103,11 +103,20 @@ private:
 
     bool EventValid(const MRH_Event* p_Event) noexcept override
     {
-        if (p_Event->u32_Type != MRH_EVENT_LISTEN_CUSTOM_COMMAND_S)
+        MRH_EvD_U_AccessClear_S c_Data;
+
+        if (MRH_EVD_ReadEvent(&c_Data, p_Event->u32_Type, p_Event) < 0)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
-                                                                     ": Wrong event type!",
-                                             "L_Custom_V1.h", __LINE__);
+                                                                     ": Failed to read event!",
+                                             "U_AccessClear_V1.h", __LINE__);
+            return false;
+        }
+        else if (c_Data.u8_Result != MRH_EvD_Base_Result::MRH_EVD_BASE_RESULT_SUCCESS)
+        {
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Failed to clear content access!",
+                                             "U_AccessClear_V1.h", __LINE__);
             return false;
         }
 
@@ -122,4 +131,4 @@ protected:
 
 };
 
-#endif /* L_Custom_V1_h */
+#endif /* U_AccessClear_V1_h */

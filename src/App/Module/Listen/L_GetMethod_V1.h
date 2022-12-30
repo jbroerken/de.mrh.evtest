@@ -22,7 +22,7 @@
 // External
 
 // Project
-#include "../EventModule.h"
+#include "./L_Custom_V1.h"
 
 
 class L_GetMethod_V1 : public EventModule
@@ -41,10 +41,16 @@ public:
 
     L_GetMethod_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_LISTEN_GET_METHOD",
                                                                               MRH_EVENT_LISTEN_GET_METHOD_S,
-                                                                              true,
+                                                                              false,
                                                                               p_EventSender)
     {
         MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_LISTEN_GET_METHOD_U, NULL, 0);
+
+        if (p_Event == NULL)
+        {
+            throw MRH::AB::ModuleException(GetIdentifier(),
+                                           "Failed to create MRH_EVENT_LISTEN_GET_METHOD_U event!");
+        }
 
         try
         {
@@ -78,8 +84,7 @@ public:
 
     std::unique_ptr<MRH::AB::Module> NextModule() override
     {
-        throw MRH::AB::ModuleException(GetIdentifier(),
-                                       "No module to switch to!");
+        return std::make_unique<L_Custom_V1>(p_EventSender);
     }
 
 private:
@@ -102,13 +107,15 @@ private:
 
         if (MRH_EVD_ReadEvent(&c_Data, p_Event->u32_Type, p_Event) < 0)
         {
-            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, "MRH_EVENT_LISTEN_GET_METHOD",
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Failed to read event!",
                                              "L_GetMethod_V1.h", __LINE__);
             return false;
         }
         else if (c_Data.u8_Result != MRH_EvD_Base_Result::MRH_EVD_BASE_RESULT_SUCCESS)
         {
-            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, "MRH_EVENT_LISTEN_GET_METHOD",
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Failed to get speech method!",
                                              "L_GetMethod_V1.h", __LINE__);
             return false;
         }

@@ -27,6 +27,7 @@ This project requires other libraries and headers to function:
 
 Dependency List:
 libmrh: https://github.com/jbroerken/libmrh/
+libmrhs: https://github.com/jbroerken/libmrhs/
 libmrhab: https://github.com/jbroerken/libmrhab/
 libmrhbf: https://github.com/jbroerken/libmrhbf/
 libmrhevdata: https://github.com/jbroerken/libmrhevdata/

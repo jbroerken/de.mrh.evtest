@@ -14,18 +14,19 @@
  *  limitations under the License.
  */
 
-#ifndef L_Custom_V1_h
-#define L_Custom_V1_h
+#ifndef P_Avail_V1_h
+#define P_Avail_V1_h
 
 // C / C++
 
 // External
 
 // Project
-#include "../Say/S_Avail_V1.h"
+//#include "./P_Check_V1.h"
+#include "./P_Set_V1.h"
 
 
-class L_Custom_V1 : public EventModule
+class P_Avail_V1 : public EventModule
 {
 public:
 
@@ -39,17 +40,17 @@ public:
      *  \param p_EventSender The event sender to use.
      */
 
-    L_Custom_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_LISTEN_CUSTOM_COMMAND",
-                                                                           MRH_EVENT_LISTEN_CUSTOM_COMMAND_S,
-                                                                           false,
-                                                                           p_EventSender)
+    P_Avail_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_PASSWORD_AVAIL",
+                                                                          MRH_EVENT_PASSWORD_AVAIL_S,
+                                                                          false,
+                                                                          p_EventSender)
     {
-        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_LISTEN_CUSTOM_COMMAND_U, NULL, 0);
+        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_PASSWORD_AVAIL_U, NULL, 0);
 
         if (p_Event == NULL)
         {
             throw MRH::AB::ModuleException(GetIdentifier(),
-                                           "Failed to create MRH_EVENT_LISTEN_CUSTOM_COMMAND_U event!");
+                                           "Failed to create MRH_EVENT_PASSWORD_AVAIL_U event!");
         }
 
         try
@@ -69,7 +70,7 @@ public:
      *  Default destructor.
      */
 
-    ~L_Custom_V1() noexcept
+    ~P_Avail_V1() noexcept
     {}
 
     //*************************************************************************************
@@ -84,7 +85,8 @@ public:
 
     std::unique_ptr<MRH::AB::Module> NextModule() override
     {
-        return std::make_unique<S_Avail_V1>(p_EventSender);
+        //return std::make_unique<P_Check_V1>(p_EventSender);
+        return std::make_unique<P_Set_V1>(p_EventSender);
     }
 
 private:
@@ -103,11 +105,20 @@ private:
 
     bool EventValid(const MRH_Event* p_Event) noexcept override
     {
-        if (p_Event->u32_Type != MRH_EVENT_LISTEN_CUSTOM_COMMAND_S)
+        MRH_EvD_P_ServiceAvail_S c_Data;
+
+        if (MRH_EVD_ReadEvent(&c_Data, p_Event->u32_Type, p_Event) < 0)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
-                                                                     ": Wrong event type!",
-                                             "L_Custom_V1.h", __LINE__);
+                                                                     ": Failed to read event!",
+                                             "P_Avail_V1.h", __LINE__);
+            return false;
+        }
+        else if (c_Data.u8_Available != MRH_EvD_Base_Result::MRH_EVD_BASE_RESULT_SUCCESS)
+        {
+            MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
+                                                                     ": Service not available!",
+                                             "P_Avail_V1.h", __LINE__);
             return false;
         }
 
@@ -122,4 +133,4 @@ protected:
 
 };
 
-#endif /* L_Custom_V1_h */
+#endif /* P_Avail_V1_h */

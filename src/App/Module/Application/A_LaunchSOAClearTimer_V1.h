@@ -14,18 +14,18 @@
  *  limitations under the License.
  */
 
-#ifndef L_Custom_V1_h
-#define L_Custom_V1_h
+#ifndef A_LaunchSOAClearTimer_V1_h
+#define A_LaunchSOAClearTimer_V1_h
 
 // C / C++
 
 // External
 
 // Project
-#include "../Say/S_Avail_V1.h"
+#include "./A_Custom_V1.h"
 
 
-class L_Custom_V1 : public EventModule
+class A_LaunchSOAClearTimer_V1 : public EventModule
 {
 public:
 
@@ -39,17 +39,17 @@ public:
      *  \param p_EventSender The event sender to use.
      */
 
-    L_Custom_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_LISTEN_CUSTOM_COMMAND",
-                                                                           MRH_EVENT_LISTEN_CUSTOM_COMMAND_S,
-                                                                           false,
-                                                                           p_EventSender)
+    A_LaunchSOAClearTimer_V1(std::shared_ptr<EventSender>& p_EventSender) : EventModule("MRH_EVENT_APP_LAUNCH_SOA_CLEAR_TIMER",
+                                                                                        MRH_EVENT_APP_LAUNCH_SOA_CLEAR_TIMER_S,
+                                                                                        false,
+                                                                                        p_EventSender)
     {
-        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_LISTEN_CUSTOM_COMMAND_U, NULL, 0);
+        MRH_Event* p_Event = MRH_EVD_CreateEvent(MRH_EVENT_APP_LAUNCH_SOA_CLEAR_TIMER_U, NULL, 0);
 
         if (p_Event == NULL)
         {
             throw MRH::AB::ModuleException(GetIdentifier(),
-                                           "Failed to create MRH_EVENT_LISTEN_CUSTOM_COMMAND_U event!");
+                                           "Failed to create MRH_EVENT_APP_LAUNCH_SOA_CLEAR_TIMER_U event!");
         }
 
         try
@@ -69,7 +69,7 @@ public:
      *  Default destructor.
      */
 
-    ~L_Custom_V1() noexcept
+    ~A_LaunchSOAClearTimer_V1() noexcept
     {}
 
     //*************************************************************************************
@@ -84,7 +84,7 @@ public:
 
     std::unique_ptr<MRH::AB::Module> NextModule() override
     {
-        return std::make_unique<S_Avail_V1>(p_EventSender);
+        return std::make_unique<A_Custom_V1>(p_EventSender);
     }
 
 private:
@@ -103,11 +103,11 @@ private:
 
     bool EventValid(const MRH_Event* p_Event) noexcept override
     {
-        if (p_Event->u32_Type != MRH_EVENT_LISTEN_CUSTOM_COMMAND_S)
+        if (p_Event->u32_Type != MRH_EVENT_APP_LAUNCH_SOA_CLEAR_TIMER_S)
         {
             MRH::AB::Logger::Singleton().Log(MRH::AB::Logger::ERROR, GetIdentifier() +
                                                                      ": Wrong event type!",
-                                             "L_Custom_V1.h", __LINE__);
+                                             "A_LaunchSOAClearTimer_V1.h", __LINE__);
             return false;
         }
 
@@ -122,4 +122,4 @@ protected:
 
 };
 
-#endif /* L_Custom_V1_h */
+#endif /* A_LaunchSOAClearTimer_V1_h */

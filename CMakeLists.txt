@@ -27,7 +27,7 @@ set(CMAKE_CXX_STANDARD 14)
 #  ------------
 #  General simple information about our project.
 ###
-project(de.mrh.evtest VERSION 1.0.0
+project(de.mrh.evtest VERSION 1.1.0
                       DESCRIPTION "MRH event test"
                       LANGUAGES CXX)
 
@@ -61,9 +61,33 @@ file(MAKE_DIRECTORY ${BUILD_DIR_PATH})
 ###
 set(SRC_DIR_PATH_APP "${CMAKE_SOURCE_DIR}/src/App/")
                  
-set(SRC_LIST_APP_MODULE_LISTEN "${SRC_DIR_PATH_APP}/Module/Listen/L_Avail_V1.cpp"
+set(SRC_LIST_APP_MODULE_LISTEN "${SRC_DIR_PATH_APP}/Module/Listen/L_Avail_V1.h"
                                "${SRC_DIR_PATH_APP}/Module/Listen/L_GetMethod_V1.h"
                                "${SRC_DIR_PATH_APP}/Module/Listen/L_Custom_V1.h")
+                 
+set(SRC_LIST_APP_MODULE_SAY "${SRC_DIR_PATH_APP}/Module/Say/S_Avail_V1.h"
+                            "${SRC_DIR_PATH_APP}/Module/Say/S_String_V1.h"
+                            "${SRC_DIR_PATH_APP}/Module/Say/S_GetMethod_V1.h"
+                            "${SRC_DIR_PATH_APP}/Module/Say/S_NotificationApp_V1.h"
+                            "${SRC_DIR_PATH_APP}/Module/Say/S_Custom_V1.h")
+                 
+set(SRC_LIST_APP_MODULE_PASSWORD "${SRC_DIR_PATH_APP}/Module/Password/P_Avail_V1.h"
+                                 "${SRC_DIR_PATH_APP}/Module/Password/P_Check_V1.h"
+                                 "${SRC_DIR_PATH_APP}/Module/Password/P_Set_V1.h"
+                                 "${SRC_DIR_PATH_APP}/Module/Password/P_Custom_V1.h")
+                 
+set(SRC_LIST_APP_MODULE_USER "${SRC_DIR_PATH_APP}/Module/User/U_Avail_V1.h"
+                             "${SRC_DIR_PATH_APP}/Module/User/U_AccessContent_V1.h"
+                             "${SRC_DIR_PATH_APP}/Module/User/U_AccessClear_V1.h"
+                             "${SRC_DIR_PATH_APP}/Module/User/U_GetLocation_V1.h"
+                             "${SRC_DIR_PATH_APP}/Module/User/U_Custom_V1.h")
+                 
+set(SRC_LIST_APP_MODULE_APPLICATION "${SRC_DIR_PATH_APP}/Module/Application/A_Avail_V1.h"
+                                    "${SRC_DIR_PATH_APP}/Module/Application/A_LaunchSOA_V1.h"
+                                    "${SRC_DIR_PATH_APP}/Module/Application/A_LaunchSOAClear_V1.h"
+                                    "${SRC_DIR_PATH_APP}/Module/Application/A_LaunchSOATimer_V1.h"
+                                    "${SRC_DIR_PATH_APP}/Module/Application/A_LaunchSOAClearTimer_V1.h"
+                                    "${SRC_DIR_PATH_APP}/Module/Application/A_Custom_V1.h")
 
 set(SRC_LIST_APP "${SRC_DIR_PATH_APP}/Module/EventModule.h"
                  "${SRC_DIR_PATH_APP}/EventSender.h"
@@ -97,7 +121,11 @@ set(SRC_LIST_SERVICE "${SRC_DIR_PATH_SERVICE}/Main.cpp")
 #  They are build as shared objects.
 ###
 add_library(MRH_App SHARED ${SRC_LIST_APP}
-                           ${SRC_LIST_APP_MODULE_HELLOWORLD})
+                           ${SRC_LIST_APP_MODULE_LISTEN}
+                           ${SRC_LIST_APP_MODULE_SAY}
+                           ${SRC_LIST_APP_MODULE_PASSWORD}
+                           ${SRC_LIST_APP_MODULE_USER}
+                           ${SRC_LIST_APP_MODULE_APPLICATION})
 set_target_properties(MRH_App
                       PROPERTIES
                       PREFIX ""
