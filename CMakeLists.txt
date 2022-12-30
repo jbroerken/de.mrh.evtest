@@ -28,7 +28,7 @@ set(CMAKE_CXX_STANDARD 14)
 #  General simple information about our project.
 ###
 project(de.mrh.evtest VERSION 1.0.0
-                      DESCRIPTION "MRH event test application"
+                      DESCRIPTION "MRH event test"
                       LANGUAGES CXX)
 
 #########################################################################
@@ -54,49 +54,31 @@ set(BUILD_DIR_PATH "${CMAKE_SOURCE_DIR}/build/")
 file(MAKE_DIRECTORY ${BUILD_DIR_PATH})
 
 ###
-#  Source Paths
-#  ------------
-#  The paths to the source files to use.
+#  App Source Paths
+#  ----------------
+#  The paths to the app source files to use.
 #  Add OS specific source files in their own list.
 ###
-set(SRC_DIR_PATH "${CMAKE_SOURCE_DIR}/src/")
-             
-set(SRC_LIST_APP "${SRC_DIR_PATH}/Revision.h"
-                 "${SRC_DIR_PATH}/Main.cpp")
+set(SRC_DIR_PATH_APP "${CMAKE_SOURCE_DIR}/src/App/")
                  
-set(SRC_LIST_MODULE_BASE "${SRC_DIR_PATH}/Module/EventModule.h")
-                 
-set(SRC_LIST_MODULE_RESPONSE_TEST "${SRC_DIR_PATH}/Module/ResponseTest/ResponseTest.cpp"
-                                  "${SRC_DIR_PATH}/Module/ResponseTest/ResponseTest.h")
-                 
-set(SRC_LIST_MODULE_RESPONSE_TEST_V1 "${SRC_DIR_PATH}/Module/ResponseTest/V1/V1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/V1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/ServiceAvailV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/ServiceCustomCommandV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Custom/CustomV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Custom/CustomV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Listen/ListenV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Listen/ListenV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Listen/ListenGetMethodV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Say/SayV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Say/SayV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Say/SayStringV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Say/SayGetMethodV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Say/SayNotificationV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Password/PasswordV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Password/PasswordV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Password/PasswordCheckV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Password/PasswordSetV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/User/UserV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/User/UserV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/User/UserAccessV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/User/UserGetLocationV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationV1Response.cpp"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationV1Response.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationLaunchV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationLaunchTimerV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationClearLaunchV1.h"
-                                     "${SRC_DIR_PATH}/Module/ResponseTest/V1/Application/ApplicationClearLaunchTimerV1.h")
+set(SRC_LIST_APP_MODULE_LISTEN "${SRC_DIR_PATH_APP}/Module/Listen/L_Avail_V1.cpp"
+                               "${SRC_DIR_PATH_APP}/Module/Listen/L_GetMethod_V1.h"
+                               "${SRC_DIR_PATH_APP}/Module/Listen/L_Custom_V1.h")
+
+set(SRC_LIST_APP "${SRC_DIR_PATH_APP}/Module/EventModule.h"
+                 "${SRC_DIR_PATH_APP}/EventSender.h"
+                 "${SRC_DIR_PATH_APP}/Revision.h"
+                 "${SRC_DIR_PATH_APP}/Main.cpp")
+
+###
+#  Service Source Paths
+#  --------------------
+#  The paths to the service source files to use.
+#  Add OS specific source files in their own list.
+###
+set(SRC_DIR_PATH_SERVICE "${CMAKE_SOURCE_DIR}/src/Service")
+
+set(SRC_LIST_SERVICE "${SRC_DIR_PATH_SERVICE}/Main.cpp")
 
 #########################################################################
 #
@@ -115,13 +97,21 @@ set(SRC_LIST_MODULE_RESPONSE_TEST_V1 "${SRC_DIR_PATH}/Module/ResponseTest/V1/V1R
 #  They are build as shared objects.
 ###
 add_library(MRH_App SHARED ${SRC_LIST_APP}
-                           ${SRC_LIST_MODULE_BASE}
-                           ${SRC_LIST_MODULE_RESPONSE_TEST}
-                           ${SRC_LIST_MODULE_RESPONSE_TEST_V1})
+                           ${SRC_LIST_APP_MODULE_HELLOWORLD})
 set_target_properties(MRH_App
                       PROPERTIES
                       PREFIX ""
                       OUTPUT_NAME "App"
+                      SUFFIX ".so"
+                      ARCHIVE_OUTPUT_DIRECTORY ${BIN_DIR_PATH}
+                      LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR_PATH}
+                      RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR_PATH})
+					  
+add_library(MRH_Service SHARED ${SRC_LIST_SERVICE})
+set_target_properties(MRH_Service
+                      PROPERTIES
+                      PREFIX ""
+                      OUTPUT_NAME "Service"
                       SUFFIX ".so"
                       ARCHIVE_OUTPUT_DIRECTORY ${BIN_DIR_PATH}
                       LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR_PATH}
@@ -140,12 +130,18 @@ find_library(libmrh NAMES mrh REQUIRED)
 find_library(libmrhbf NAMES mrhbf REQUIRED)
 find_library(libmrhevdata NAMES mrhevdata REQUIRED)
 find_library(libmrhab NAMES mrhab REQUIRED)
+find_library(libmrhvt NAMES mrhvt REQUIRED)
+find_library(libmrhs NAMES mrhs REQUIRED)
 
 target_link_libraries(MRH_App PUBLIC Threads::Threads)
 target_link_libraries(MRH_App PUBLIC mrh)
 target_link_libraries(MRH_App PUBLIC mrhbf)
 target_link_libraries(MRH_App PUBLIC mrhevdata)
 target_link_libraries(MRH_App PUBLIC mrhab)
+target_link_libraries(MRH_App PUBLIC mrhvt)
+
+target_link_libraries(MRH_Service PUBLIC mrhs)
+target_link_libraries(MRH_Service PUBLIC mrhevdata)
 
 ###
 #  Source Definitions
