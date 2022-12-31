@@ -61,15 +61,6 @@ public:
     MRH::AB::Module::Result Update(const MRH_Event* p_Event) override
     {
         /**
-         *  Event Usable
-         */
-
-        if (p_Event == NULL)
-        {
-            return MRH::AB::Module::IN_PROGRESS;
-        }
-
-        /**
          *  System Events?
          */
 
