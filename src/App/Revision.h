@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2021 - 2022 The de.mrh.evtest Authors.
+ *  Copyright (C) 2021 - 2023 The de.mrh.evtest Authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #define REVISION_STRING "1.1.0"
 
 #define REVISION_MAJOR 1
-#define REVISION_MINOR 0
+#define REVISION_MINOR 1
 #define REVISION_PATCH 0
 
 
